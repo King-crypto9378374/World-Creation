@@ -62,6 +62,7 @@ alter table public.citizens
   add column if not exists parent_a_id uuid references public.citizens(id) on delete set null,
   add column if not exists parent_b_id uuid references public.citizens(id) on delete set null,
   add column if not exists household_id uuid,
+  add column if not exists current_location_id uuid references public.world_locations(id) on delete set null,
   add column if not exists last_journey_year numeric not null default 1,
   add column if not exists needs jsonb not null default '{"food":100,"water":100,"safety":100,"belonging":100}'::jsonb;
 
@@ -86,7 +87,41 @@ begin
 
   insert into public.world_society_state(world_id) values(wid)
   on conflict(world_id) do nothing;
-end $$;
+
+  update public.citizens c
+  set current_location_id=(
+    select l.id from public.world_locations l
+    where l.world_id=wid
+    order by power(l.x-c.x,2)+power(l.y-c.y,2)
+    limit 1
+  )
+  where c.world_id=wid and c.current_location_id is null;
+end $;
+
+-- The opening prayers are attached to the concrete concerns that prompted them.
+do $
+declare wid uuid; food_event uuid; rain_event uuid;
+begin
+  select id into wid from public.worlds where slug='x-219b';
+  insert into public.world_events(world_id,world_year,event_type,title,description,metadata)
+  select wid,1,'opening_food_concern','Uncertain food stores',
+    'The first group has only a small reserve and does not yet know which nearby areas can reliably provide food.',
+    '{"settlement":"The First Hearth","condition":"limited_food"}'::jsonb
+  where not exists(select 1 from public.world_events where world_id=wid and event_type='opening_food_concern');
+  select id into food_event from public.world_events where world_id=wid and event_type='opening_food_concern' order by created_at limit 1;
+
+  insert into public.world_events(world_id,world_year,event_type,title,description,metadata)
+  select wid,1,'opening_rainfall','Rain reaches the valley',
+    'Recent rainfall has refreshed the valley, but the group has not yet learned how dependable the water source will be.',
+    '{"settlement":"The First Hearth","condition":"recent_rainfall"}'::jsonb
+  where not exists(select 1 from public.world_events where world_id=wid and event_type='opening_rainfall');
+  select id into rain_event from public.world_events where world_id=wid and event_type='opening_rainfall' order by created_at limit 1;
+
+  update public.prayers set related_event_id=food_event
+  where world_id=wid and citizen_id='219b0000-0000-4000-8000-000000000101' and related_event_id is null;
+  update public.prayers set related_event_id=rain_event
+  where world_id=wid and citizen_id='219b0000-0000-4000-8000-000000000102' and related_event_id is null;
+end $;
 
 alter table public.world_locations enable row level security;
 alter table public.citizen_journeys enable row level security;
@@ -162,6 +197,7 @@ begin
   update public.citizens c
   set x=l.x,y=l.y,
       settlement_id=coalesce(l.settlement_id,c.settlement_id),
+      current_location_id=l.id,
       current_activity='Exploring '||l.name
   from public.citizen_journeys j
   join public.world_locations l on l.id=j.destination_location_id
@@ -205,6 +241,7 @@ begin
     select c.id from public.citizens c
     where c.world_id=wid and c.status='alive' and c.age_years between 20 and 38
       and c.id>a.id and c.settlement_id is not distinct from a.settlement_id
+      and not exists(select 1 from public.citizen_partnerships q where q.citizen_a_id=c.id or q.citizen_b_id=c.id)
     order by md5(c.id::text||a.id::text) limit 1
   ) b on true
   where a.world_id=wid and a.status='alive' and a.age_years between 20 and 38
