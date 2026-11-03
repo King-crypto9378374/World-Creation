@@ -37,7 +37,9 @@ export default function ConnectedApp() {
   const refresh=async()=>{
     try{
       const [w,p]=await Promise.all([loadWorldStatus(),loadPrayers()]);
-      setWorld(w);setPrayers(p);setLoadError('');
+      setWorld(w);setPrayers(p);
+      if(w) setCounts(await loadWorldCounts(w.id));
+      setLoadError('');
       setSelected(old=>old ? p.find(x=>x.id===old.id) ?? p[0] ?? null : p[0] ?? null);
     }catch(e){setLoadError(e instanceof Error?e.message:'Could not load world data.');}
   };
