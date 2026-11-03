@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Activity, Bell, BookOpen, ChevronRight, CircleHelp, Clock3, Command, Globe2, Heart, Layers3, LockKeyhole, Menu, MessageCircle, Radio, Search, Send, Settings2, Shield, Sparkles, Users, X } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { Activity, Bell, BookOpen, ChevronRight, CircleHelp, Clock3, Globe2, Heart, Layers3, LockKeyhole, Menu, MessageCircle, Radio, Send, Settings2, Shield, Sparkles, Users, X } from 'lucide-react';
 
 type Prayer = { id: number; name: string; place: string; year: number; text: string; mood: string };
 const START = Date.now();
@@ -60,4 +61,4 @@ export default function App() {
     {toast&&<div className="toast"><CircleHelp size={16}/>{toast}</div>}
   </div>;
 }
-function Stat({icon,label,value,note}:{icon:React.ReactNode;label:string;value:string;note:string}){return <div className="stat-card"><div className="stat-top"><span>{label}</span><i>{icon}</i></div><strong>{value}</strong><small>{note}</small></div>}
+function Stat({icon,label,value,note}:{icon:ReactNode;label:string;value:string;note:string}){return <div className="stat-card"><div className="stat-top"><span>{label}</span><i>{icon}</i></div><strong>{value}</strong><small>{note}</small></div>}
