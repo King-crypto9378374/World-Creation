@@ -25,6 +25,8 @@ export type PrayerRecord = {
   world_year: number;
   created_at: string;
   status: string;
+  related_event_id?: string | null;
+  world_events?: { title: string; description: string; event_type: string } | null;
   citizens: { full_name: string; settlement_id: string | null; settlements: { name: string } | null } | null;
 };
 
@@ -39,7 +41,7 @@ export async function loadPrayers() {
   if (!supabase) throw new Error('Supabase is not configured.');
   const { data, error } = await supabase
     .from('prayers')
-    .select('id,message,emotional_state,context,world_year,created_at,status,citizens(full_name,settlement_id,settlements(name))')
+    .select('id,message,emotional_state,context,world_year,created_at,status,related_event_id,world_events(title,description,event_type),citizens(full_name,settlement_id,settlements(name))')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return (data ?? []) as unknown as PrayerRecord[];
