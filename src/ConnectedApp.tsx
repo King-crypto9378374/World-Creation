@@ -42,6 +42,7 @@ export default function ConnectedApp() {
 
   const refresh=async()=>{
     try{
+      await supabase?.rpc('advance_world_simulation',{p_slug:'x-219b'});
       const [w,p]=await Promise.all([loadWorldStatus(),loadPrayers()]);
       setWorld(w);setPrayers(p);
       if(w) { setCounts(await loadWorldCounts(w.id));
