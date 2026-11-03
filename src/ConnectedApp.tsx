@@ -61,6 +61,9 @@ export default function ConnectedApp() {
     try{
       const tickResults=await Promise.allSettled([
         supabase.rpc('advance_world_simulation',{p_slug:'x-219b'}),
+        supabase.rpc('advance_citizen_movement',{p_slug:'x-219b'}),
+        supabase.rpc('advance_early_family_growth',{p_slug:'x-219b'}),
+        supabase.rpc('advance_early_settlement',{p_slug:'x-219b'}),
         supabase.rpc('advance_world_environment',{p_slug:'x-219b'}),
         supabase.rpc('advance_civilization_development',{p_slug:'x-219b'}),
         supabase.rpc('advance_civilization_culture',{p_slug:'x-219b'}),
