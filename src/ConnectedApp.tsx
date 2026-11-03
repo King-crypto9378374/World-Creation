@@ -32,6 +32,8 @@ export default function ConnectedApp() {
   const [geography,setGeography] = useState<any[]>([]);
   const [civilizations,setCivilizations] = useState<any[]>([]);
   const [borders,setBorders] = useState<any[]>([]);
+  const [buildings,setBuildings] = useState<any[]>([]);
+  const [workLog,setWorkLog] = useState<any[]>([]);
 
   useEffect(()=>{
     if(!supabase) return;
