@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Activity, Bell, BookOpen, Clock3, Globe2, Heart, Layers3, LogOut, MessageCircle, Radio, Send, Shield, Sparkles, Users } from 'lucide-react';
-import { isSupabaseConfigured, supabase, loadWorldStatus, loadPrayers, answerPrayer, createBroadcast, type PrayerRecord, type WorldStatus } from './lib/supabase';
+import { isSupabaseConfigured, supabase, loadWorldStatus, loadPrayers, loadWorldCounts, answerPrayer, createBroadcast, type PrayerRecord, type WorldStatus } from './lib/supabase';
 
 export default function ConnectedApp() {
   const [session,setSession] = useState<any>(null);
@@ -10,7 +10,7 @@ export default function ConnectedApp() {
   const [password,setPassword] = useState('');
   const [authError,setAuthError] = useState('');
   const [busy,setBusy] = useState(false);
-  const [world,setWorld] = useState<WorldStatus|null>(null);
+  const [world,setWorld] = useState<WorldStatus|null>(null);\n  const [counts,setCounts] = useState({population:0,settlements:0});
   const [prayers,setPrayers] = useState<PrayerRecord[]>([]);
   const [selected,setSelected] = useState<PrayerRecord|null>(null);
   const [reply,setReply] = useState('');
@@ -85,7 +85,7 @@ export default function ConnectedApp() {
       <div className="content"><div className="welcome"><div><div className="eyebrow"><span/> THE BEGINNING OF EVERYTHING</div><h1>A world awaits its story.</h1><p>Humanity has taken its first steps. Watch their world become something greater.</p></div><div className="world-tag"><Globe2 size={15}/> WORLD X-219B</div></div>
         <section className="time-panel"><div className="time-side"><span className="metric-label">ETHO · YOUR LOCAL TIME</span><div className="big-time">{localTime}</div><span className="subtle">{new Intl.DateTimeFormat(undefined,{dateStyle:'full'}).format(now)}</span></div><div className="time-divider"><div className="time-orb"><Clock3 size={19}/></div><span>TIME DILATION</span><b>1 : 1 YEAR</b></div><div className="time-side sim"><span className="metric-label">CIVILIZATION · SIMULATED TIME</span><div className="big-time">YEAR {Math.floor(simYear).toLocaleString()}</div><span className="subtle">{world?.paused?'World paused':'Advancing in real time'}</span></div><div className="time-progress"><div><span>WORLD YEAR PROGRESS</span><b>{Math.floor((simYear%1)*100)}%</b></div><div className="progress-track"><i style={{width:`${(simYear%1)*100}%`}}/></div></section>
         <div className="section-head"><div><div className="eyebrow">CIVILIZATION STATUS</div><h2>The first chapter</h2></div><span className="live-tag"><span/> {world?'DATABASE LIVE':'CONNECTING'}</span></div>
-        <div className="stats-grid"><Stat icon={<Users/>} label="KNOWN POPULATION" value="—" note="Awaiting first citizens" /><Stat icon={<Heart/>} label="RECORDED PRAYERS" value={String(prayers.length).padStart(2,'0')} note="Stored in Supabase" /><Stat icon={<Globe2/>} label="SETTLEMENTS" value="—" note="Awaiting world initialization" /><Stat icon={<Activity/>} label="CIVILIZATION ERA" value="Dawn" note="Before recorded history" /></div>
+        <div className="stats-grid"><Stat icon={<Users/>} label="KNOWN POPULATION" value={String(counts.population)} note="Living citizens" /><Stat icon={<Heart/>} label="RECORDED PRAYERS" value={String(prayers.length).padStart(2,'0')} note="Stored in Supabase" /><Stat icon={<Globe2/>} label="SETTLEMENTS" value={String(counts.settlements)} note="Founded settlements" /><Stat icon={<Activity/>} label="CIVILIZATION ERA" value="Dawn" note="Before recorded history" /></div>
         {loadError&&<div className="data-error">{loadError}</div>}
         <div className="dashboard-grid"><section className="panel prayer-panel"><div className="panel-head"><div><div className="eyebrow">A CONNECTION TO HUMANITY</div><h3>Prayer inbox <span className="count">{prayers.length}</span></h3></div><button className="text-button" onClick={refresh}>Refresh ↻</button></div>
           {prayers.length===0?<div className="empty">No prayers have been recorded yet. They will appear here when the simulation engine creates them.</div>:prayers.slice(0,5).map(p=><button className={`prayer-row ${selected?.id===p.id?'selected':''}`} key={p.id} onClick={()=>setSelected(p)}><div className="prayer-avatar">{p.citizens?.full_name?.[0]??'?'}</div><div className="prayer-copy"><div><b>{p.citizens?.full_name??'Unknown citizen'}</b><span>{p.citizens?.settlements?.name??'Unknown settlement'} · Year {Math.floor(p.world_year)}</span></div><p>{p.message}</p><small>{p.emotional_state.toUpperCase()} · {p.status.toUpperCase()}</small></div></button>)}
