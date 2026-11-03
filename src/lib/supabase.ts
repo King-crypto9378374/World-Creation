@@ -47,14 +47,15 @@ export async function loadPrayers() {
   return (data ?? []) as unknown as PrayerRecord[];
 }
 
-export async function answerPrayer(prayerId: string, creatorId: string, message: string) {
+export async function answerPrayer(prayerId: string, _creatorId: string, message: string) {
   if (!supabase) throw new Error('Supabase is not configured.');
-  const { error: responseError } = await supabase.from('prayer_responses').insert({
-    prayer_id: prayerId, creator_id: creatorId, message
+  const { data, error } = await supabase.rpc('respond_to_prayer', {
+    p_prayer_id: prayerId,
+    p_message: message
   });
-  if (responseError) throw responseError;
-  const { error: prayerError } = await supabase.from('prayers').update({ status: 'answered' }).eq('id', prayerId);
-  if (prayerError) throw prayerError;
+  if (error) throw error;
+  if (!data?.saved) throw new Error('The response was not applied to the world.');
+  return data;
 }
 
 export async function createBroadcast(creatorId: string, message: string, worldYear: number, worldId: string) {
