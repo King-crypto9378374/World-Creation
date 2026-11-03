@@ -98,10 +98,10 @@ begin
     limit 1
   )
   where c.world_id=wid and c.current_location_id is null;
-end $;
+end $$;
 
 -- The opening prayers are attached to the concrete concerns that prompted them.
-do $
+do $$
 declare wid uuid; food_event uuid; rain_event uuid;
 begin
   select id into wid from public.worlds where slug='x-219b';
@@ -123,7 +123,7 @@ begin
   where world_id=wid and citizen_id='219b0000-0000-4000-8000-000000000101' and related_event_id is null;
   update public.prayers set related_event_id=rain_event
   where world_id=wid and citizen_id='219b0000-0000-4000-8000-000000000102' and related_event_id is null;
-end $;
+end $$;
 
 alter table public.world_locations enable row level security;
 alter table public.citizen_journeys enable row level security;
