@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { BookOpen, LayoutDashboard, Users, Globe2, CalendarDays, GitBranch, StickyNote, Lightbulb, Library, MessageSquareText, Sparkles, Search, Plus, ChevronDown, ChevronRight, Save, Menu, X, Clock3, WandSparkles, MapPin, Network, MoreHorizontal, Settings, ScrollText, FileText } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Users, Globe2, CalendarDays, GitBranch, StickyNote, Lightbulb, Library, MessageSquareText, Sparkles, Search, Plus, ChevronDown, ChevronRight, Save, Menu, X, Clock3, WandSparkles, Network, MoreHorizontal, Settings, ScrollText, FileText } from 'lucide-react';
 
 type Character = { id:string; name:string; role:string; age:string; pronouns:string; status:string; occupation:string; personality:string; appearance:string; backstory:string; goals:string; fears:string; tags:string[]; };
 type Chapter = { id:string; title:string; text:string; status:string; };
