@@ -214,8 +214,8 @@ begin
   on conflict(citizen_a_id,citizen_b_id) do nothing;
 
   -- One new child per four-year cycle, with both caregivers recorded in the family tree.
-  birth_cycle:=greatest(0,floor((yr-1)/4)::integer);
-  if birth_cycle>(select last_birth_cycle from public.world_society_state where world_id=wid) then
+  birth_cycle:=(select last_birth_cycle+1 from public.world_society_state where world_id=wid);
+  if birth_cycle<=greatest(0,floor((yr-1)/4)::integer) then
     select p.* into pair
     from public.citizen_partnerships p
     join public.citizens a on a.id=p.citizen_a_id
@@ -257,7 +257,7 @@ begin
   update public.world_society_state
   set food=food_now,fresh_water=water_now,
       stability=greatest(0,least(100,stability+case when food_now<20 or water_now<20 then -elapsed*2 else elapsed*.15 end)),
-      last_tick_year=greatest(last_tick_year,yr),updated_at=now()
+      last_tick_year=prev_yr+elapsed,updated_at=now()
   where world_id=wid;
 
   -- A concrete shortage creates a world event and a prayer linked to that event.
