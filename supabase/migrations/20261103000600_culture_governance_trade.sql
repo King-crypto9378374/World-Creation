@@ -7,7 +7,7 @@ create table if not exists public.civilization_culture (
   language_name text not null default 'First Hearth Speech',
   cultural_identity text not null default 'The Hearthfolk',
   traditions jsonb not null default '["shared meals","oral storytelling","seasonal gathering"]'::jsonb,
-  values jsonb not null default '["kinship","cooperation","curiosity"]'::jsonb,
+  core_values jsonb not null default '["kinship","cooperation","curiosity"]'::jsonb,
   last_culture_year integer not null default 1,
   updated_at timestamptz not null default now()
 );
