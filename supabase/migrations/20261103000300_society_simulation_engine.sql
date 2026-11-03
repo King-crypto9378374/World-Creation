@@ -87,6 +87,8 @@ begin
 
   insert into public.world_society_state(world_id) values(wid)
   on conflict(world_id) do nothing;
+  update public.world_society_state set food=35,fresh_water=65
+  where world_id=wid and last_tick_year=1 and food=100 and fresh_water=100;
 
   update public.citizens c
   set current_location_id=(
