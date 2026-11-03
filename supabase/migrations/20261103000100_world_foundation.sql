@@ -186,3 +186,40 @@ grant execute on function public.is_creator() to authenticated;
 
 -- The initial settlement and starter population are inserted by the simulation
 -- initializer after the first creator account is promoted. No fake prayers are seeded.
+
+-- Seed the opening world state: twelve fictional people at the first settlement.
+do $$
+declare wid uuid;
+begin
+  select id into wid from public.worlds where slug = 'x-219b';
+  insert into public.settlements (id, world_id, name, description, founded_year, population, biome, x, y)
+  values ('219b0000-0000-4000-8000-000000000001', wid, 'The First Hearth',
+    'A small gathering beside a freshwater river, at the beginning of human history.', 1, 12, 'river valley', 0.48, 0.52)
+  on conflict (id) do nothing;
+
+  insert into public.citizens (id, world_id, settlement_id, full_name, age_years, birth_year, personality, traits, beliefs, ambitions)
+  values
+  ('219b0000-0000-4000-8000-000000000101',wid,'219b0000-0000-4000-8000-000000000001','Aren',31, -30,'{"temperament":"thoughtful","sociability":"reserved"}','{"observant","patient","protective"}','{"spirituality":"uncertain"}','{"find safer water","protect the group"}'),
+  ('219b0000-0000-4000-8000-000000000102',wid,'219b0000-0000-4000-8000-000000000001','Sela',27, -26,'{"temperament":"warm","sociability":"high"}','{"empathetic","curious","hopeful"}','{"spirituality":"questioning"}','{"care for children","understand the seasons"}'),
+  ('219b0000-0000-4000-8000-000000000103',wid,'219b0000-0000-4000-8000-000000000001','Tovan',42, -41,'{"temperament":"steady","sociability":"medium"}','{"practical","strong-willed"}','{}','{"find reliable food"}'),
+  ('219b0000-0000-4000-8000-000000000104',wid,'219b0000-0000-4000-8000-000000000001','Mira',19, -18,'{"temperament":"bold","sociability":"high"}','{"adventurous","restless","brave"}','{}','{"explore beyond the river"}'),
+  ('219b0000-0000-4000-8000-000000000105',wid,'219b0000-0000-4000-8000-000000000001','Eren',35, -34,'{"temperament":"gentle","sociability":"low"}','{"careful","creative"}','{}','{"make better tools"}'),
+  ('219b0000-0000-4000-8000-000000000106',wid,'219b0000-0000-4000-8000-000000000001','Nima',24, -23,'{"temperament":"curious","sociability":"medium"}','{"inquisitive","observant"}','{}','{"learn the patterns of animals"}'),
+  ('219b0000-0000-4000-8000-000000000107',wid,'219b0000-0000-4000-8000-000000000001','Oru',51, -50,'{"temperament":"quiet","sociability":"low"}','{"wise","patient"}','{"spirituality":"wonder"}','{"teach what experience has shown"}'),
+  ('219b0000-0000-4000-8000-000000000108',wid,'219b0000-0000-4000-8000-000000000001','Luma',16, -15,'{"temperament":"playful","sociability":"high"}','{"energetic","imaginative"}','{}','{"discover new places"}'),
+  ('219b0000-0000-4000-8000-000000000109',wid,'219b0000-0000-4000-8000-000000000001','Kelan',29, -28,'{"temperament":"anxious","sociability":"medium"}','{"loyal","cautious"}','{}','{"keep family safe"}'),
+  ('219b0000-0000-4000-8000-000000000110',wid,'219b0000-0000-4000-8000-000000000001','Ilya',22, -21,'{"temperament":"determined","sociability":"medium"}','{"resourceful","ambitious"}','{}','{"build a lasting shelter"}'),
+  ('219b0000-0000-4000-8000-000000000111',wid,'219b0000-0000-4000-8000-000000000001','Veya',38, -37,'{"temperament":"kind","sociability":"high"}','{"nurturing","resilient"}','{}','{"help the group thrive"}'),
+  ('219b0000-0000-4000-8000-000000000112',wid,'219b0000-0000-4000-8000-000000000001','Daro',13, -12,'{"temperament":"shy","sociability":"medium"}','{"attentive","imaginative"}','{}','{"understand the world"}')
+  on conflict (id) do nothing;
+
+  insert into public.prayers (id, world_id, citizen_id, message, emotional_state, context, world_year, status)
+  values
+  ('219b0000-0000-4000-8000-000000000201',wid,'219b0000-0000-4000-8000-000000000101',
+   'If someone is listening beyond the sky, show us where the river goes. We have little food, and the young ones are afraid.',
+   'worried','Aren is concerned about the group''s food supply and the unfamiliar land beyond the river.',1,'unanswered'),
+  ('219b0000-0000-4000-8000-000000000202',wid,'219b0000-0000-4000-8000-000000000102',
+   'Thank you for the rain. I do not know who to thank, but I wanted the words to exist somewhere.',
+   'grateful','Sela is reflecting on rainfall after a dry stretch and wondering whether anyone hears her thoughts.',1,'unanswered')
+  on conflict (id) do nothing;
+end $$;
