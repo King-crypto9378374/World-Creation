@@ -34,3 +34,8 @@ After migrations 001–003 have succeeded, run the complete SQL file `migrations
 ## Migration 005 — autonomous civilization development
 
 After migrations 001–004 have succeeded, run the complete SQL file `migrations/20261103000500_autonomous_civilization_development.sql` in the Supabase SQL Editor. It adds a persistent building registry and citizen work log, then introduces a once-per-simulated-year development tick. Adult citizens are assigned work such as foraging, water collection, timber and stone gathering, farming, and crafting. Their output changes shared food, water, and building-material reserves. The system constructs homes when shelter is insufficient, creates shared growing plots, and can found Riverstead when the population and material reserves meet the threshold. The observatory calls this function automatically during its normal refresh.
+
+
+## Migration 006 — culture, governance, trade, and territory
+
+After migrations 001–005 have succeeded, run the complete SQL file `migrations/20261103000600_culture_governance_trade.sql` in the Supabase SQL Editor. It adds persistent civilization culture, evolving language and traditions, population-based governance stages, trade routes and yearly trade records, and a simplified territorial envelope that expands to include active settlements. The observatory advances this system during its normal refresh. Territory is an approximate simulation boundary, not a surveyed map border.
