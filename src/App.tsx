@@ -13,7 +13,7 @@ const nav = [{label:'Overview',icon:Layers3},{label:'Humanity',icon:Users},{labe
 export default function App() {
   const [now,setNow] = useState(Date.now());
   const [active,setActive] = useState('Overview');
-  const [prayers,setPrayers] = useState(initialPrayers);
+  const [prayers] = useState(initialPrayers);
   const [selected,setSelected] = useState<Prayer | null>(initialPrayers[0]);
   const [reply,setReply] = useState('');
   const [broadcast,setBroadcast] = useState('');
