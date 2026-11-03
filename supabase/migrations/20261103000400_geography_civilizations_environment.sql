@@ -99,6 +99,7 @@ begin
   whole_year:=floor(yr)::integer;
   insert into public.world_society_state(world_id) values(wid) on conflict(world_id) do nothing;
   select last_environment_year into last_year from public.world_society_state where world_id=wid for update;
+  update public.civilizations set population=(select count(*) from public.citizens where world_id=wid and status='alive') where world_id=wid;
   if whole_year<=last_year then return jsonb_build_object('created',false,'reason','year_already_processed'); end if;
   update public.world_society_state set last_environment_year=whole_year where world_id=wid;
   roll:=random();
