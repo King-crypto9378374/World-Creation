@@ -22,3 +22,33 @@
 .prayer-context{padding:10px 12px;margin:10px 0 14px;border:1px solid #354157;border-radius:6px;background:#0b1421;color:#aebbd0;font-size:10px;line-height:1.6}.prayer-context b{color:#e0c17b}.prayer-context p{margin-top:7px;color:#aebbd0}
 
 .family-row{display:flex;align-items:flex-start;gap:11px;padding:13px 5px;border-top:1px solid #263146}.family-row .prayer-copy p{font-size:10px;color:#aab4c5;margin:5px 0}.family-row .prayer-copy small{font:8px 'DM Mono';color:#c5a76b;letter-spacing:.5px;line-height:1.6}
+
+
+/* Interactive X-219B geographic atlas */
+.atlas-shell{border:1px solid #35445a;border-radius:10px;overflow:hidden;background:#0b1722}
+.atlas-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#111d2a;border-bottom:1px solid #35445a}
+.atlas-toolbar b{display:block;font:10px 'DM Mono';letter-spacing:1.2px;color:#e5ca8a}
+.atlas-toolbar span{display:block;margin-top:4px;font-size:9px;color:#8191a5}
+.atlas-controls{display:flex;align-items:center;gap:7px}
+.atlas-controls button{min-width:29px;height:27px;border:1px solid #48586c;border-radius:5px;background:#1a2938;color:#e6d4a8;cursor:pointer;font-size:13px}
+.atlas-controls button:last-child{padding:0 9px;font-size:9px}
+.atlas-controls span{min-width:38px;text-align:center;font:9px 'DM Mono';color:#c9d3df}
+.atlas-viewport{height:560px;position:relative;background:#102b3b;overflow:hidden}
+.atlas-viewport svg{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.atlas-viewport svg:active{cursor:grabbing}
+.atlas-compass{position:absolute;right:15px;top:14px;padding:8px 10px;border:1px solid #a7b7b855;border-radius:5px;background:#0b172acc;color:#e7e1ce;font:10px 'DM Mono'}
+.atlas-scale{position:absolute;left:13px;bottom:12px;padding:7px 9px;background:#0b172acc;border:1px solid #a7b7b833;border-radius:4px;color:#d7d2bd;font:8px 'DM Mono';letter-spacing:.7px}
+.atlas-legend{display:flex;gap:14px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid #33465a;color:#a7b4c3;font:9px 'DM Mono'}
+.atlas-legend span{display:flex;align-items:center;gap:6px}
+.atlas-legend i,.atlas-civilizations i{display:inline-block;width:9px;height:9px;border-radius:50%}
+.legend-person{background:#f3d17e;box-shadow:0 0 7px #f3d17e88}
+.legend-town{background:#f1c76e;border-radius:2px!important}
+.legend-river{background:#66b5d0}
+.legend-border{background:transparent;border:1px dashed #d5b36b}
+.legend-mountain{background:#b9c1b9}
+.atlas-civilizations{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 13px}
+.atlas-civilizations>div{display:flex;align-items:center;gap:7px;padding:7px 9px;border:1px solid #34465a;border-radius:5px;background:#101d2a}
+.atlas-civilizations i{width:8px;height:8px}
+.atlas-civilizations b{font-size:9px;color:#e7d8b5}
+.atlas-civilizations span{font-size:8px;color:#8493a8}
+@media(max-width:720px){.atlas-viewport{height:430px}.atlas-toolbar{align-items:flex-start;flex-direction:column}.atlas-toolbar>div:first-child span{line-height:1.4}}
