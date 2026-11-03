@@ -91,7 +91,7 @@ begin
   select simulated_year into yr from public.get_world_status(p_slug);
   if yr<2 then return jsonb_build_object('created',false,'reason','The first family milestone is approaching.'); end if;
 
-  select * into pair
+  select p.* into pair
   from public.citizen_partnerships p
   join public.citizens a on a.id=p.citizen_a_id
   join public.citizens b on b.id=p.citizen_b_id
