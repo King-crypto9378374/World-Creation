@@ -174,11 +174,12 @@ begin
 
   -- Expand the current civilization border to include every active settlement.
   -- This is a simplified territorial envelope, not a surveyed geographic boundary.
-  select avg(x),avg(y),greatest(0.07,max(sqrt(power(x-avg(x) over (),2)+power(y-avg(y) over (),2)))+0.07)
-  into center_x,center_y,boundary_radius
+  select avg(x),avg(y) into center_x,center_y
   from public.settlements where world_id=wid and status='active';
-
   if center_x is not null then
+    select greatest(0.07,coalesce(max(sqrt(power(s.x-center_x,2)+power(s.y-center_y,2))),0)+0.07)
+    into boundary_radius
+    from public.settlements s where s.world_id=wid and s.status='active';
     select jsonb_agg(jsonb_build_array(
       round(greatest(0.02,least(0.98,center_x+cos(n*0.78539816339)*boundary_radius))::numeric,5),
       round(greatest(0.02,least(0.98,center_y+sin(n*0.78539816339)*boundary_radius))::numeric,5)
