@@ -24,3 +24,8 @@ VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY
 Use the project's publishable/anon key only in the browser. **Never** put the service-role key in frontend variables, GitHub, or client code.
 
 The migration enables row-level security. A newly registered account is an observer until you promote it using the SQL above. Only the creator role can read or change civilization data.
+
+
+## Migration 004 — geography, borders, and environmental events
+
+After migrations 001–003 have succeeded, run the complete SQL file `migrations/20261103000400_geography_civilizations_environment.sql` in the Supabase SQL Editor. It creates persistent terrain features, the first civilization and its territory, and an environment tick that can create weather and natural-disaster events. Those events change shared resources and can generate prayers linked to the exact event.
