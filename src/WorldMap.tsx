@@ -9,13 +9,14 @@ type Props = {
   locations: any[];
   citizens: any[];
   journeys: any[];
+  buildings: any[];
   selectedCitizen: any;
   onSelectCitizen: (citizen: any) => void;
 };
 
 const pointString = (points: any[]) => points.map((p:any) => Array.isArray(p) ? (p[0]*1000)+','+(p[1]*600) : '').join(' ');
 
-export default function WorldMap({features,civilizations,borders,settlements,locations,citizens,journeys,selectedCitizen,onSelectCitizen}:Props) {
+export default function WorldMap({features,civilizations,borders,settlements,locations,citizens,journeys,buildings,selectedCitizen,onSelectCitizen}:Props) {
   const [zoom,setZoom]=useState(1);
   const [pan,setPan]=useState({x:0,y:0});
   const [drag,setDrag]=useState<{x:number;y:number;px:number;py:number}|null>(null);
@@ -51,10 +52,11 @@ export default function WorldMap({features,civilizations,borders,settlements,loc
         {journeys.map(j=>{const c=citizens.find(x=>x.id===j.citizen_id);const d=locations.find(x=>x.id===j.destination_location_id);return c&&d?<line key={j.id} x1={Number(c.x)*1000} y1={Number(c.y)*600} x2={Number(d.x)*1000} y2={Number(d.y)*600} stroke="#f4d783" strokeWidth="3" strokeDasharray="7 6"/>:null})}
         {locations.map(l=><g key={l.id} transform={`translate(${Number(l.x)*1000} ${Number(l.y)*600})`}><circle r="5" fill={l.location_type==='settlement'?'#f4d783':'#9ccbd0'} stroke="#17232b" strokeWidth="2"/><text x="9" y="-8" fill="#f4e8c6" fontSize="12" paintOrder="stroke" stroke="#1b2a2b" strokeWidth="3">{l.name}</text></g>)}
         {settlements.map(s=><g key={s.id} transform={`translate(${Number(s.x)*1000} ${Number(s.y)*600})`}><rect x="-7" y="-7" width="14" height="14" rx="2" fill="#f1c76e" stroke="#fff1c9" strokeWidth="2"/><text x="12" y="4" fill="#fff0c9" fontSize="13" paintOrder="stroke" stroke="#15221e" strokeWidth="4">{s.name}</text></g>)}
+        {buildings.map(b=><g key={b.id} transform={`translate(${Number(b.x)*1000} ${Number(b.y)*600})`}><rect x="-5" y="-5" width="10" height="10" rx="1.5" fill={b.building_type==='farm'?'#9cbd76':'#d6b77a'} stroke="#26352b" strokeWidth="1.5"><title>{b.name} · {b.building_type}</title></rect></g>)}
         {alive.map(c=><g key={c.id} transform={`translate(${Number(c.x??c.settlements?.x??.5)*1000} ${Number(c.y??c.settlements?.y??.5)*600})`} onClick={()=>onSelectCitizen(c)} style={{cursor:'pointer'}}><circle r={selectedCitizen?.id===c.id?10:6} fill={selectedCitizen?.id===c.id?'#ffffff':'#f3d17e'} stroke="#18252b" strokeWidth="2"/><circle r="14" fill="none" stroke="#f3d17e" strokeOpacity=".28"/><title>{c.full_name} · age {c.age_years}</title></g>)}
       </g>
     </svg><div className="atlas-compass">N ↑</div><div className="atlas-scale">X-219B · {selectedCiv?.name??'Unclaimed lands'}</div></div>
-    <div className="atlas-legend"><span><i className="legend-person"/> Citizens ({alive.length})</span><span><i className="legend-town"/> Settlements ({settlements.length})</span><span><i className="legend-river"/> Rivers & lakes</span><span><i className="legend-border"/> Civilization borders</span><span><i className="legend-mountain"/> Mountain ranges</span></div>
+    <div className="atlas-legend"><span><i className="legend-person"/> Citizens ({alive.length})</span><span><i className="legend-town"/> Settlements ({settlements.length})</span><span>▦ Buildings ({buildings.length})</span><span><i className="legend-river"/> Rivers & lakes</span><span><i className="legend-border"/> Civilization borders</span><span><i className="legend-mountain"/> Mountain ranges</span></div>
     <div className="atlas-civilizations">{civilizations.map(c=><div key={c.id}><i style={{background:c.color}}/><b>{c.name}</b><span>{c.government_type} · {c.population} people</span></div>)}</div>
   </div>;
 }
