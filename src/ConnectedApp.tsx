@@ -170,7 +170,7 @@ function formatWorkOutput(output:any):string {
   if(typeof output!=="object") return String(output);
   const labels:Record<string,string>={food:"Food",fresh_water:"Fresh water",building_materials:"Building materials"};
   const parts=Object.entries(output).map(([key,value])=>{
-    const label=labels[key]??key.replaceAll("_"," ");
+    const label=labels[key]??key.replace(/_/g," ");
     const amount=typeof value==="number"||typeof value==="string"?String(value):"";
     return amount ? label+" +"+amount : label;
   });
