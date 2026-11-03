@@ -62,3 +62,14 @@ export async function createBroadcast(creatorId: string, message: string, worldY
   });
   if (error) throw error;
 }
+
+export async function loadWorldCounts(worldId: string) {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const [citizens, settlements] = await Promise.all([
+    supabase.from('citizens').select('id', { count: 'exact', head: true }).eq('world_id', worldId).eq('status', 'alive'),
+    supabase.from('settlements').select('id', { count: 'exact', head: true }).eq('world_id', worldId)
+  ]);
+  if (citizens.error) throw citizens.error;
+  if (settlements.error) throw settlements.error;
+  return { population: citizens.count ?? 0, settlements: settlements.count ?? 0 };
+}
