@@ -69,7 +69,12 @@ export default function ConnectedApp() {
         supabase.rpc('advance_civilization_culture',{p_slug:'x-219b'}),
         supabase.rpc('advance_civilization_knowledge',{p_slug:'x-219b'})
       ]);
-      const tickWarnings=tickResults.filter((r:any)=>r.status==='rejected'||r.value?.error).length;
+      const tickNames=['World simulation','Citizen movement','Family growth','New settlement','Environment','Civilization development','Culture','Knowledge'];
+      const tickFailures=tickResults.flatMap((r:any,i:number)=>{
+        if(r.status==='rejected')return [`${tickNames[i]}: ${r.reason?.message??String(r.reason)}`];
+        if(r.value?.error)return [`${tickNames[i]}: ${r.value.error.message??'Unknown database error'}`];
+        return [];
+      });
       const [w,p]=await Promise.all([loadWorldStatus(),loadPrayers()]);
       setWorld(w);setPrayers(p);
       if(w) { setCounts(await loadWorldCounts(w.id));
@@ -93,7 +98,7 @@ export default function ConnectedApp() {
         ]);
         if(c.error)throw c.error;if(e.error)throw e.error;if(b.error)throw b.error;if(st.error)throw st.error;if(loc.error)throw loc.error;if(jr.error)throw jr.error;if(ss.error)throw ss.error;if(gf.error)throw gf.error;if(cv.error)throw cv.error;if(cb.error)throw cb.error;if(wb.error)throw wb.error;if(wl.error)throw wl.error;if(cc.error)throw cc.error;if(tr.error)throw tr.error;if(discoveriesResult.error)throw discoveriesResult.error;if(knowledgeResult.error)throw knowledgeResult.error;setCulture(cc.data?.[0]??null);setTradeRoutes(tr.data??[]);setDiscoveries(discoveriesResult.data??[]);setKnowledge(knowledgeResult.data?.[0]??null);setCitizens(c.data??[]);setEvents(e.data??[]);setBroadcasts(b.data??[]);setSettlements(st.data??[]);setWorldLocations(loc.data??[]);setJourneys(jr.data??[]);setSociety(ss.data??null);setGeography(gf.data??[]);setCivilizations(cv.data??[]);setBorders(cb.data??[]);setBuildings(wb.data??[]);setWorkLog(wl.data??[]);
       }
-      setLoadError(tickWarnings?`${tickWarnings} simulation update(s) could not run. The latest saved records were still reloaded.`:'');
+      setLoadError(tickFailures.length?`Simulation update issue(s): ${tickFailures.join(' | ')}. The latest saved records were still reloaded.`:'');
       setSelected(old=>old ? p.find(x=>x.id===old.id) ?? p[0] ?? null : p[0] ?? null);
     }catch(e){setLoadError(e instanceof Error?e.message:'Could not load world data.');}
     finally{setRefreshing(false);}
