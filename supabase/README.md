@@ -29,3 +29,8 @@ The migration enables row-level security. A newly registered account is an obser
 ## Migration 004 — geography, borders, and environmental events
 
 After migrations 001–003 have succeeded, run the complete SQL file `migrations/20261103000400_geography_civilizations_environment.sql` in the Supabase SQL Editor. It creates persistent terrain features, the first civilization and its territory, and an environment tick that can create weather and natural-disaster events. Those events change shared resources and can generate prayers linked to the exact event.
+
+
+## Migration 005 — autonomous civilization development
+
+After migrations 001–004 have succeeded, run the complete SQL file `migrations/20261103000500_autonomous_civilization_development.sql` in the Supabase SQL Editor. It adds a persistent building registry and citizen work log, then introduces a once-per-simulated-year development tick. Adult citizens are assigned work such as foraging, water collection, timber and stone gathering, farming, and crafting. Their output changes shared food, water, and building-material reserves. The system constructs homes when shelter is insufficient, creates shared growing plots, and can found Riverstead when the population and material reserves meet the threshold. The observatory calls this function automatically during its normal refresh.
