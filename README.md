@@ -1,51 +1,53 @@
 # PROJECT ETHO — World X-219B
 
-A persistent, accelerated civilization simulation observed through the creator console of **Etho**.
+A persistent, accelerated civilization simulation observed through the private creator console of **Etho**.
 
-## Current foundation
+## Current build
 
-- React + TypeScript + Vite observatory dashboard.
-- Dual-clock concept: one real hour represents one simulated year.
-- Creator console visual system and responsive layout.
-- Prayer inbox and citizen-response interface (currently preview data only).
-- Broadcast composer (currently preview-only).
-- FastAPI service foundation with a world-status endpoint.
+- React + TypeScript + Vite creator observatory.
+- Supabase Auth login and creator-role gate.
+- PostgreSQL schema with row-level security for worlds, settlements, citizens, memories, prayers, responses, broadcasts, and events.
+- Server-authoritative simulated clock: one real hour equals one simulated year.
+- Opening world seed: one settlement, twelve citizens, and two recorded prayers.
+- Persistent creator prayer responses and broadcast records.
+- Live population, settlement, and prayer counts.
 
-> **Important:** This is a simulation project. Citizens, their memories, emotions, and experiences are fictional computational representations; the software does not create conscious beings or actual suffering.
+> Citizens and their emotions, memories, and experiences are fictional simulated data, not conscious beings or actual suffering.
+
+## Supabase setup
+
+Read [supabase/README.md](supabase/README.md), then run the migration in `supabase/migrations/` using the Supabase SQL Editor.
+
+Set these frontend environment variables in your deployment platform and local `.env.local`:
+
+```env
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY
+```
+
+Never expose a Supabase service-role key in frontend code.
 
 ## Run locally
 
-### Frontend
 ```bash
 npm install
 npm run dev
 ```
 
-### Backend
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r backend/requirements.txt
-uvicorn backend.main:app --reload --port 8000
-```
+The frontend uses Vite. The FastAPI service in `backend/` is a separate future simulation-worker foundation and is not required for the current Supabase-backed dashboard.
 
-API health: `GET /health`  
-World status: `GET /api/world/status`
+## Current limitations
 
-## Next implementation milestones
+- The initial citizen and prayer records are seeded once by the migration.
+- Prayer responses and broadcasts persist, but citizens do not yet autonomously generate new prayers or receive broadcasts.
+- Population counts are real database counts; birth, aging, death, relationships, culture, economy, and technology simulation are upcoming.
+- The current clock derives from the persisted world start timestamp and database server time.
 
-1. Persist world settings, clock anchor, and simulation events in PostgreSQL.
-2. Add authentication and enforce creator-only administrative actions server-side.
-3. Create citizen, household, settlement, relationship, memory, and event schemas.
-4. Implement deterministic hourly/yearly simulation ticks and safe offline catch-up.
-5. Build persistent prayer delivery, creator replies, and citizen belief/memory updates.
-6. Add broadcasts with technology-aware reach and delayed interpretation.
-7. Add civilization systems and an interactive Three.js globe.
+## Next milestones
 
-## Architecture principles
-
-- Server time is authoritative; browser clocks are display-only.
-- Persist simulation state and event history; never rely on an open browser tab.
-- Use deterministic rules for routine life and reserve AI calls for selected high-impact narrative events.
-- Validate every creator command on the backend and log all world-changing actions.
-- Keep secrets in environment variables; never commit API keys.
+1. Build the deterministic simulation tick and safe offline catch-up.
+2. Generate citizen decisions, relationships, life events, and prayers from persistent state.
+3. Make creator replies influence citizen memories, beliefs, and later decisions.
+4. Add pause/resume and command console with server-side audit history.
+5. Add civilization systems, settlements, and a Three.js globe.
+6. Add selected AI-generated narrative events without using AI for every routine simulation action.
