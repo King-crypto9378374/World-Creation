@@ -80,15 +80,17 @@ begin
     where d.civilization_id=civ.id and d.discovery_key=catalog.discovery_key)
   order by catalog.rank limit 1;
 
-  if next_discovery.discovery_key is not null and knowledge.knowledge_points>=next_discovery.knowledge_cost then
-    insert into public.civilization_discoveries(civilization_id,discovery_key,name,description,discovered_year,knowledge_cost)
-    values(civ.id,next_discovery.discovery_key,next_discovery.name,next_discovery.description,yr,next_discovery.knowledge_cost)
-    on conflict(civilization_id,discovery_key) do nothing;
-    insert into public.world_events(world_id,world_year,event_type,title,description,metadata)
-    values(wid,yr,'discovery','A new discovery changes daily life',
-      next_discovery.name||': '||next_discovery.description,
-      jsonb_build_object('civilization_id',civ.id,'discovery_key',next_discovery.discovery_key,'knowledge_points',knowledge.knowledge_points));
-    discoveries_added:=1;
+  if found then
+    if knowledge.knowledge_points>=next_discovery.knowledge_cost then
+      insert into public.civilization_discoveries(civilization_id,discovery_key,name,description,discovered_year,knowledge_cost)
+      values(civ.id,next_discovery.discovery_key,next_discovery.name,next_discovery.description,yr,next_discovery.knowledge_cost)
+      on conflict(civilization_id,discovery_key) do nothing;
+      insert into public.world_events(world_id,world_year,event_type,title,description,metadata)
+      values(wid,yr,'discovery','A new discovery changes daily life',
+        next_discovery.name||': '||next_discovery.description,
+        jsonb_build_object('civilization_id',civ.id,'discovery_key',next_discovery.discovery_key,'knowledge_points',knowledge.knowledge_points));
+      discoveries_added:=1;
+    end if;
   end if;
 
   return jsonb_build_object('advanced',true,'world_year',yr,'knowledge_points',knowledge.knowledge_points,
