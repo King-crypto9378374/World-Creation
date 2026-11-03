@@ -38,6 +38,7 @@ export default function ConnectedApp() {
   const [discoveries,setDiscoveries] = useState<any[]>([]);
   const [knowledge,setKnowledge] = useState<any>(null);
   const [tradeRoutes,setTradeRoutes] = useState<any[]>([]);
+  const [refreshing,setRefreshing] = useState(false);
 
   useEffect(()=>{
     if(!supabase) return;
@@ -55,12 +56,17 @@ export default function ConnectedApp() {
   },[session]);
 
   const refresh=async()=>{
+    if(!supabase || refreshing)return;
+    setRefreshing(true);
     try{
-      const {error:tickError}=await supabase!.rpc('advance_world_simulation',{p_slug:'x-219b'});if(tickError)throw tickError;
-      const {error:environmentError}=await supabase!.rpc('advance_world_environment',{p_slug:'x-219b'});if(environmentError)throw environmentError;
-      const {error:developmentError}=await supabase!.rpc('advance_civilization_development',{p_slug:'x-219b'});if(developmentError)throw developmentError;
-      const {error:cultureError}=await supabase!.rpc('advance_civilization_culture',{p_slug:'x-219b'});if(cultureError)throw cultureError;
-      const {error:knowledgeError}=await supabase!.rpc('advance_civilization_knowledge',{p_slug:'x-219b'});if(knowledgeError)throw knowledgeError;
+      const tickResults=await Promise.allSettled([
+        supabase.rpc('advance_world_simulation',{p_slug:'x-219b'}),
+        supabase.rpc('advance_world_environment',{p_slug:'x-219b'}),
+        supabase.rpc('advance_civilization_development',{p_slug:'x-219b'}),
+        supabase.rpc('advance_civilization_culture',{p_slug:'x-219b'}),
+        supabase.rpc('advance_civilization_knowledge',{p_slug:'x-219b'})
+      ]);
+      const tickWarnings=tickResults.filter((r:any)=>r.status==='rejected'||r.value?.error).length;
       const [w,p]=await Promise.all([loadWorldStatus(),loadPrayers()]);
       setWorld(w);setPrayers(p);
       if(w) { setCounts(await loadWorldCounts(w.id));
@@ -84,9 +90,10 @@ export default function ConnectedApp() {
         ]);
         if(c.error)throw c.error;if(e.error)throw e.error;if(b.error)throw b.error;if(st.error)throw st.error;if(loc.error)throw loc.error;if(jr.error)throw jr.error;if(ss.error)throw ss.error;if(gf.error)throw gf.error;if(cv.error)throw cv.error;if(cb.error)throw cb.error;if(wb.error)throw wb.error;if(wl.error)throw wl.error;if(cc.error)throw cc.error;if(tr.error)throw tr.error;if(discoveriesResult.error)throw discoveriesResult.error;if(knowledgeResult.error)throw knowledgeResult.error;setCulture(cc.data?.[0]??null);setTradeRoutes(tr.data??[]);setDiscoveries(discoveriesResult.data??[]);setKnowledge(knowledgeResult.data?.[0]??null);setCitizens(c.data??[]);setEvents(e.data??[]);setBroadcasts(b.data??[]);setSettlements(st.data??[]);setWorldLocations(loc.data??[]);setJourneys(jr.data??[]);setSociety(ss.data??null);setGeography(gf.data??[]);setCivilizations(cv.data??[]);setBorders(cb.data??[]);setBuildings(wb.data??[]);setWorkLog(wl.data??[]);
       }
-      setLoadError('');
+      setLoadError(tickWarnings?`${tickWarnings} simulation update(s) could not run. The latest saved records were still reloaded.`:'');
       setSelected(old=>old ? p.find(x=>x.id===old.id) ?? p[0] ?? null : p[0] ?? null);
     }catch(e){setLoadError(e instanceof Error?e.message:'Could not load world data.');}
+    finally{setRefreshing(false);}
   };
   useEffect(()=>{
     if(profile?.role!=='creator')return;
@@ -134,14 +141,14 @@ export default function ConnectedApp() {
         <div className="section-head"><div><div className="eyebrow">CIVILIZATION STATUS</div><h2>The first chapter</h2></div><span className="live-tag"><span/> {world?'DATABASE LIVE':'CONNECTING'}</span></div>
         <div className="stats-grid"><Stat icon={<Users/>} label="KNOWN POPULATION" value={String(counts.population)} note="Living citizens" /><Stat icon={<Heart/>} label="RECORDED PRAYERS" value={String(prayers.length).padStart(2,'0')} note="Stored in Supabase" /><Stat icon={<Globe2/>} label="SETTLEMENTS" value={String(counts.settlements)} note="Founded settlements" /><Stat icon={<Activity/>} label="CIVILIZATION ERA" value="Dawn" note="Before recorded history" /></div>
         {loadError&&<div className="data-error">{loadError}</div>}
-        <div className="dashboard-grid"><section className="panel prayer-panel"><div className="panel-head"><div><div className="eyebrow">A CONNECTION TO HUMANITY</div><h3>Prayer inbox <span className="count">{prayers.length}</span></h3></div><button className="text-button" onClick={refresh}>Refresh ↻</button></div>
+        <div className="dashboard-grid"><section className="panel prayer-panel"><div className="panel-head"><div><div className="eyebrow">A CONNECTION TO HUMANITY</div><h3>Prayer inbox <span className="count">{prayers.length}</span></h3></div><button className="text-button" onClick={refresh} disabled={refreshing}>{refreshing?"Refreshing…":"Refresh ↻"}</button></div>
           {prayers.length===0?<div className="empty">No prayers have been recorded yet. They will appear here when the simulation engine creates them.</div>:prayers.slice(0,5).map(p=><button className={`prayer-row ${selected?.id===p.id?'selected':''}`} key={p.id} onClick={()=>setSelected(p)}><div className="prayer-avatar">{p.citizens?.full_name?.[0]??'?'}</div><div className="prayer-copy"><div><b>{p.citizens?.full_name??'Unknown citizen'}</b><span>{p.citizens?.settlements?.name??'Unknown settlement'} · Year {Math.floor(p.world_year)}</span></div><p>{p.message}</p><small>{p.emotional_state.toUpperCase()} · {p.status.toUpperCase()}</small></div></button>)}
         </section><section className="panel reply-panel"><div className="panel-head"><div><div className="eyebrow">DIVINE COMMUNICATION</div><h3>{selected?.citizens?.full_name??'Select a prayer'}</h3></div><div className="gold-icon"><MessageCircle size={17}/></div></div>{selected?<><blockquote>“{selected.message}”</blockquote><div className="prayer-context"><b>Observed circumstances:</b> {selected.context}{selected.world_events&&<p><b>Linked event · {selected.world_events.title}</b><br/>{selected.world_events.description}</p>}</div><div className="reply-label">YOUR RESPONSE</div><textarea value={reply} onChange={e=>setReply(e.target.value)} placeholder="Send a message to this citizen..."/><button className="gold-button" onClick={sendReply} disabled={!reply.trim()||busy}><Send size={15}/> Save response</button><p className="fine-print"><Shield size={12}/> Stored in the permanent world record.</p></>:<div className="empty">Choose a prayer to read its message.</div>}</section></div>
         <section className="panel broadcast-panel"><div className="broadcast-icon"><Radio size={18}/></div><div className="broadcast-main"><div className="eyebrow">SPEAK TO THE WORLD</div><h3>Issue a creator broadcast</h3><p>Broadcasts are saved to the world record. Citizen delivery is a later simulation milestone.</p><div className="broadcast-input"><input value={broadcast} onChange={e=>setBroadcast(e.target.value)} onKeyDown={e=>e.key==='Enter'&&sendBroadcast()} placeholder="Write a message for humanity..."/><button onClick={sendBroadcast} disabled={!broadcast.trim()||busy}><Send size={15}/> Broadcast</button></div></div></section></>}
         {active!=="Overview"&&<section className="panel tab-content"><div className="panel-head"><div><div className="eyebrow">WORLD OBSERVATORY</div><h3>{active}</h3></div><button className="text-button" onClick={refresh}>Refresh ↻</button></div>
 {active==="Humanity"&&<>{citizens.map(c=><div className="citizen-row" key={c.id}><div className="prayer-avatar">{c.full_name?.[0]??"?"}</div><div className="prayer-copy"><b>{c.full_name}</b><p>Age {c.age_years} · {c.settlements?.name??"Wilderness"} · {c.status}</p><small>{(c.traits??[]).join(" · ")}</small></div></div>)}{citizens.length===0&&<div className="empty">No citizens found.</div>}</>}
 {active==="Prayers"&&<>{prayers.map(p=><button className="prayer-row" key={p.id} onClick={()=>setSelected(p)}><div className="prayer-avatar">{p.citizens?.full_name?.[0]??"?"}</div><div className="prayer-copy"><b>{p.citizens?.full_name??"Unknown citizen"}</b><p>{p.message}</p><small>{p.emotional_state} · {p.status} · Year {Math.floor(p.world_year)}</small></div></button>)}</>}
-{active==="Families"&&<><p className="map-note">Family records are built from saved parent-child links. New births appear here after the simulation records their parents.</p>{citizens.map(c=>{const parents=[citizens.find(x=>x.id===c.parent_a_id)?.full_name,citizens.find(x=>x.id===c.parent_b_id)?.full_name].filter(Boolean);const children=citizens.filter(x=>x.parent_a_id===c.id||x.parent_b_id===c.id).map(x=>x.full_name);return <div className="family-row" key={c.id}><div className="prayer-avatar">{c.full_name?.[0]??"?"}</div><div className="prayer-copy"><b>{c.full_name}</b><p>Parents: {parents.join(" & ")||"Not recorded"}</p><small>CHILDREN: {children.join(", ")||"None recorded"} · {c.household_id?"HOUSEHOLD LINKED":"NO HOUSEHOLD LINK"}</small></div></div>})}{citizens.length===0&&<div className="empty">No family records yet.</div>}</>}
+{active==="Families"&&<><p className="map-note">Family records are built from saved parent-child links. New births appear here after the simulation records their parents. {citizens.filter(c=>c.parent_a_id||c.parent_b_id).length} children with recorded parent links are currently known.</p>{citizens.map(c=>{const parents=[citizens.find(x=>x.id===c.parent_a_id)?.full_name,citizens.find(x=>x.id===c.parent_b_id)?.full_name].filter(Boolean);const children=citizens.filter(x=>x.parent_a_id===c.id||x.parent_b_id===c.id).map(x=>x.full_name);return <div className="family-row" key={c.id}><div className="prayer-avatar">{c.full_name?.[0]??"?"}</div><div className="prayer-copy"><b>{c.full_name}</b><p>Parents: {parents.join(" & ")||"Not recorded"}</p><small>CHILDREN: {children.join(", ")||"None recorded"} · {c.household_id?"HOUSEHOLD LINKED":"NO HOUSEHOLD LINK"}</small><small>{c.parent_a_id||c.parent_b_id?`BORN IN YEAR ${Math.floor(Number(c.birth_year??0))} · PARENTAGE RECORDED`:"FOUNDING GENERATION / PARENTAGE NOT RECORDED"}</small></div></div>})}{citizens.length===0&&<div className="empty">No family records yet.</div>}</>}
 {active==="World Map"&&<><p className="map-note">Explore X-219B as a persistent, zoomable atlas. Terrain, settlements, people, travel routes, and civilization claims share the same world coordinates. Drag to move; use the controls to zoom.</p>
 <div className="map-status-strip"><span>FOOD {society?Math.round(Number(society.food)):"—"}</span><span>FRESH WATER {society?Math.round(Number(society.fresh_water)):"—"}</span><span>STABILITY {society?Math.round(Number(society.stability)):"—"}%</span><span>ACTIVE JOURNEYS {journeys.length}</span><span>WORLD EVENTS {events.length}</span><span>STRUCTURES {buildings.length}</span></div>
 <WorldMap features={geography} civilizations={civilizations} borders={borders} settlements={settlements} locations={worldLocations} citizens={citizens} journeys={journeys} buildings={buildings} selectedCitizen={selectedCitizen} onSelectCitizen={setSelectedCitizen}/>
