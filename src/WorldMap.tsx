@@ -14,7 +14,8 @@ type Props = {
   onSelectCitizen: (citizen: any) => void;
 };
 
-const pointString = (points: any[]) => points.map((p:any) => Array.isArray(p) ? (p[0]*1000)+','+(p[1]*600) : '').join(' ');
+const safePoints = (value: any): any[] => Array.isArray(value) ? value.filter((p:any)=>Array.isArray(p)&&Number.isFinite(Number(p[0]))&&Number.isFinite(Number(p[1]))) : [];
+const pointString = (points: any) => safePoints(points).map((p:any) => (Number(p[0])*1000)+','+(Number(p[1])*600)).join(' ');
 
 export default function WorldMap({features,civilizations,borders,settlements,locations,citizens,journeys,buildings,selectedCitizen,onSelectCitizen}:Props) {
   const [zoom,setZoom]=useState(1);
@@ -43,12 +44,12 @@ export default function WorldMap({features,civilizations,borders,settlements,loc
         <path d="M120 450 Q250 390 350 440 T590 450 T840 430" fill="none" stroke="#d9dfbd" strokeOpacity=".22" strokeWidth="2"/>
         {terrain('river').map(f=><polyline key={f.id} points={pointString(f.coordinates)} fill="none" stroke="#66b5d0" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>)}
         {terrain('river').map(f=><polyline key={f.id+'bank'} points={pointString(f.coordinates)} fill="none" stroke="#b1d9d9" strokeOpacity=".45" strokeWidth="2" strokeLinecap="round"/>)}
-        {terrain('mountain_range').map(f=><g key={f.id}><polyline points={pointString(f.coordinates)} fill="none" stroke="#d2d1bb" strokeWidth="19" strokeLinecap="round" strokeLinejoin="round" opacity=".5"/>{(f.coordinates??[]).map((p:any,i:number)=><path key={i} d={`M${p[0]*1000-17} ${p[1]*600+16} l17 -38 17 38 Z`} fill="#aeb5aa" stroke="#e1e2d5" strokeWidth="2"/>)}</g>)}
-        {terrain('forest').map(f=><g key={f.id}>{(f.coordinates??[]).map((p:any,i:number)=><g key={i} transform={`translate(${p[0]*1000} ${p[1]*600})`}><circle r="18" fill="#234b39" opacity=".88"/><circle cy="-5" r="12" fill="#47734b"/><circle cy="-10" r="7" fill="#78936a"/></g>)}</g>)}
+        {terrain('mountain_range').map(f=><g key={f.id}><polyline points={pointString(f.coordinates)} fill="none" stroke="#d2d1bb" strokeWidth="19" strokeLinecap="round" strokeLinejoin="round" opacity=".5"/>{safePoints(f.coordinates).map((p:any,i:number)=><path key={i} d={`M${p[0]*1000-17} ${p[1]*600+16} l17 -38 17 38 Z`} fill="#aeb5aa" stroke="#e1e2d5" strokeWidth="2"/>)}</g>)}
+        {terrain('forest').map(f=><g key={f.id}>{safePoints(f.coordinates).map((p:any,i:number)=><g key={i} transform={`translate(${p[0]*1000} ${p[1]*600})`}><circle r="18" fill="#234b39" opacity=".88"/><circle cy="-5" r="12" fill="#47734b"/><circle cy="-10" r="7" fill="#78936a"/></g>)}</g>)}
         {terrain('lake').map(f=><polygon key={f.id} points={pointString(f.coordinates)} fill="#4e9fbd" stroke="#b4d6d9" strokeWidth="3"/>)}
         {terrain('wetland').map(f=><polygon key={f.id} points={pointString(f.coordinates)} fill="#667d57" stroke="#9aa978" strokeWidth="3" opacity=".85"/>)}
         {terrain('plains').map(f=><polyline key={f.id} points={pointString(f.coordinates)} fill="none" stroke="#b9ad70" strokeWidth="26" strokeOpacity=".28" strokeLinecap="round"/>)}
-        {borders.filter(b=>b.is_current).map(b=><polygon key={b.id} points={pointString(b.polygon??[])} fill={civilizations.find(c=>c.id===b.civilization_id)?.color??'#d5b36b'} fillOpacity=".13" stroke={civilizations.find(c=>c.id===b.civilization_id)?.color??'#d5b36b'} strokeWidth="3" strokeDasharray="10 7"/>)}
+        {borders.filter(b=>b.is_current).map(b=><polygon key={b.id} points={pointString(b.polygon)} fill={civilizations.find(c=>c.id===b.civilization_id)?.color??'#d5b36b'} fillOpacity=".13" stroke={civilizations.find(c=>c.id===b.civilization_id)?.color??'#d5b36b'} strokeWidth="3" strokeDasharray="10 7"/>)}
         {journeys.map(j=>{const c=citizens.find(x=>x.id===j.citizen_id);const d=locations.find(x=>x.id===j.destination_location_id);return c&&d?<line key={j.id} x1={Number(c.x)*1000} y1={Number(c.y)*600} x2={Number(d.x)*1000} y2={Number(d.y)*600} stroke="#f4d783" strokeWidth="3" strokeDasharray="7 6"/>:null})}
         {locations.map(l=><g key={l.id} transform={`translate(${Number(l.x)*1000} ${Number(l.y)*600})`}><circle r="5" fill={l.location_type==='settlement'?'#f4d783':'#9ccbd0'} stroke="#17232b" strokeWidth="2"/><text x="9" y="-8" fill="#f4e8c6" fontSize="12" paintOrder="stroke" stroke="#1b2a2b" strokeWidth="3">{l.name}</text></g>)}
         {settlements.map(s=><g key={s.id} transform={`translate(${Number(s.x)*1000} ${Number(s.y)*600})`}><rect x="-7" y="-7" width="14" height="14" rx="2" fill="#f1c76e" stroke="#fff1c9" strokeWidth="2"/><text x="12" y="4" fill="#fff0c9" fontSize="13" paintOrder="stroke" stroke="#15221e" strokeWidth="4">{s.name}</text></g>)}
