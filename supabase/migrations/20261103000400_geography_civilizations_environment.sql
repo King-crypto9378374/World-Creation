@@ -89,6 +89,7 @@ declare
   impact_stability numeric := 0;
   loc record;
   person record;
+  affected_settlement uuid;
   event_id uuid;
 begin
   if not public.is_creator() then raise exception 'Creator permission required'; end if;
@@ -129,6 +130,7 @@ begin
   impact_food:=case kind when 'wildfire' then -8 when 'flood' then -5 when 'drought' then -7 when 'earthquake' then -3 else 0 end;
   impact_water:=case kind when 'drought' then -12 when 'wildfire' then -4 when 'heavy_rainfall' then 9 when 'flood' then 5 else 0 end;
   impact_stability:=case kind when 'earthquake' then -8 when 'wildfire' then -7 when 'flood' then -6 when 'severe_storm' then -4 when 'drought' then -5 else 1 end;
+  select id into affected_settlement from public.settlements where world_id=wid order by power(x-loc.x,2)+power(y-loc.y,2) limit 1;
 
   insert into public.world_events(world_id,world_year,event_type,title,description,metadata)
   values(wid,yr,kind,title_text,description_text,jsonb_build_object('location_id',loc.id,'location_name',loc.name,'x',loc.x,'y',loc.y,'biome',loc.biome,'severity',case when roll<0.115 then 'major' else 'moderate' end))
@@ -142,8 +144,7 @@ begin
   update public.citizens set
     current_activity=case when kind in ('earthquake','wildfire','flood','severe_storm') then 'Responding to '||lower(title_text) else 'Adapting to '||lower(title_text) end,
     needs=jsonb_set(coalesce(needs,'{}'::jsonb),'{safety}',to_jsonb(greatest(0,least(100,coalesce((needs->>'safety')::numeric,80)+impact_stability))))
-  where world_id=wid and status='alive'
-    and (settlement_id is null or settlement_id=loc.id or exists(select 1 from public.settlements s where s.id=citizens.settlement_id and s.name=loc.name));
+  where world_id=wid and status='alive' and settlement_id=affected_settlement;
   select id,full_name into person from public.citizens where world_id=wid and status='alive' order by random() limit 1;
   if person.id is not null then
     insert into public.prayers(world_id,citizen_id,message,emotional_state,context,world_year,related_event_id)
