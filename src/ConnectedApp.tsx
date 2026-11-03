@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
 import { Activity, Bell, BookOpen, Clock3, Globe2, Heart, Layers3, LogOut, MessageCircle, Radio, Send, Shield, Sparkles, Users } from 'lucide-react';
 import { isSupabaseConfigured, supabase, loadWorldStatus, loadPrayers, answerPrayer, createBroadcast, type PrayerRecord, type WorldStatus } from './lib/supabase';
 
