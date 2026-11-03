@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { PointerEvent } from 'react';
 
 type Props = {
   features: any[];
@@ -12,7 +13,7 @@ type Props = {
   onSelectCitizen: (citizen: any) => void;
 };
 
-const pointString = (points: any[]) => points.map((p:any) => Array.isArray(p) ? p.join(',') : '').join(' ');
+const pointString = (points: any[]) => points.map((p:any) => Array.isArray(p) ? (p[0]*1000)+','+(p[1]*600) : '').join(' ');
 
 export default function WorldMap({features,civilizations,borders,settlements,locations,citizens,journeys,selectedCitizen,onSelectCitizen}:Props) {
   const [zoom,setZoom]=useState(1);
@@ -21,7 +22,7 @@ export default function WorldMap({features,civilizations,borders,settlements,loc
   const alive=useMemo(()=>citizens.filter(c=>c.status==='alive'),[citizens]);
   const selectedCiv=civilizations[0];
   const terrain=(type:string)=>features.filter(f=>f.feature_type===type);
-  const startDrag=(e:React.PointerEvent<SVGSVGElement>)=>{setDrag({x:e.clientX,y:e.clientY,px:pan.x,py:pan.y});e.currentTarget.setPointerCapture(e.pointerId);};
+  const startDrag=(e:PointerEvent<SVGSVGElement>)=>{setDrag({x:e.clientX,y:e.clientY,px:pan.x,py:pan.y});e.currentTarget.setPointerCapture(e.pointerId);};
   const moveDrag=(e:React.PointerEvent<SVGSVGElement>)=>{if(drag)setPan({x:drag.px+(e.clientX-drag.x)*1000/Math.max(1,e.currentTarget.clientWidth),y:drag.py+(e.clientY-drag.y)*600/Math.max(1,e.currentTarget.clientHeight)});};
   const stopDrag=()=>setDrag(null);
   const changeZoom=(amount:number)=>setZoom(v=>Math.max(1,Math.min(4,Number((v+amount).toFixed(2)))));
@@ -46,7 +47,7 @@ export default function WorldMap({features,civilizations,borders,settlements,loc
         {terrain('lake').map(f=><polygon key={f.id} points={pointString(f.coordinates)} fill="#4e9fbd" stroke="#b4d6d9" strokeWidth="3"/>)}
         {terrain('wetland').map(f=><polygon key={f.id} points={pointString(f.coordinates)} fill="#667d57" stroke="#9aa978" strokeWidth="3" opacity=".85"/>)}
         {terrain('plains').map(f=><polyline key={f.id} points={pointString(f.coordinates)} fill="none" stroke="#b9ad70" strokeWidth="26" strokeOpacity=".28" strokeLinecap="round"/>)}
-        {borders.filter(b=>b.is_current).map(b=><polygon key={b.id} points={pointString((b.polygon??[]).map((p:any)=>[p[0]*1000,p[1]*600]))} fill={civilizations.find(c=>c.id===b.civilization_id)?.color??'#d5b36b'} fillOpacity=".13" stroke={civilizations.find(c=>c.id===b.civilization_id)?.color??'#d5b36b'} strokeWidth="3" strokeDasharray="10 7"/>)}
+        {borders.filter(b=>b.is_current).map(b=><polygon key={b.id} points={pointString(b.polygon??[])} fill={civilizations.find(c=>c.id===b.civilization_id)?.color??'#d5b36b'} fillOpacity=".13" stroke={civilizations.find(c=>c.id===b.civilization_id)?.color??'#d5b36b'} strokeWidth="3" strokeDasharray="10 7"/>)}
         {journeys.map(j=>{const c=citizens.find(x=>x.id===j.citizen_id);const d=locations.find(x=>x.id===j.destination_location_id);return c&&d?<line key={j.id} x1={Number(c.x)*1000} y1={Number(c.y)*600} x2={Number(d.x)*1000} y2={Number(d.y)*600} stroke="#f4d783" strokeWidth="3" strokeDasharray="7 6"/>:null})}
         {locations.map(l=><g key={l.id} transform={`translate(${Number(l.x)*1000} ${Number(l.y)*600})`}><circle r="5" fill={l.location_type==='settlement'?'#f4d783':'#9ccbd0'} stroke="#17232b" strokeWidth="2"/><text x="9" y="-8" fill="#f4e8c6" fontSize="12" paintOrder="stroke" stroke="#1b2a2b" strokeWidth="3">{l.name}</text></g>)}
         {settlements.map(s=><g key={s.id} transform={`translate(${Number(s.x)*1000} ${Number(s.y)*600})`}><rect x="-7" y="-7" width="14" height="14" rx="2" fill="#f1c76e" stroke="#fff1c9" strokeWidth="2"/><text x="12" y="4" fill="#fff0c9" fontSize="13" paintOrder="stroke" stroke="#15221e" strokeWidth="4">{s.name}</text></g>)}
