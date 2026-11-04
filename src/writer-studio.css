@@ -87,3 +87,31 @@
 .iw-coming-soon{min-height:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;max-width:760px;margin:15px auto;background:radial-gradient(ellipse at 50% 25%,#302719 0,#171914 48%,#101311 100%);border-color:#665333}.iw-coming-orbit{width:76px;height:76px;border:1px solid #b89b5c;border-radius:50%;display:grid;place-items:center;color:#e0c17b;box-shadow:0 0 0 12px #c7a35e0d,0 0 35px #c7a35e22;margin-bottom:22px}.iw-coming-soon h2{font:500 clamp(25px,4vw,38px) 'Cormorant Garamond';color:#f0e2c7;margin:12px 0}.iw-coming-label{font:9px 'DM Mono';letter-spacing:2px;color:#d7b86f;border:1px solid #705a35;padding:8px 15px;margin:8px 0 12px}.iw-coming-soon p{max-width:440px;color:#a89f8c;font:13px/1.7 'Cormorant Garamond';margin:0}
 @media(max-width:1120px){.iw-world-builder{grid-template-columns:1fr}.iw-character-layout{grid-template-columns:180px minmax(300px,1fr)}.iw-graph-panel{grid-column:1/-1}}
 @media(max-width:760px){.iw-world-builder,.iw-character-layout{grid-template-columns:1fr}.iw-graph-panel{grid-column:auto}.iw-map-brush{align-items:flex-start;flex-direction:column}.iw-map-brush>div{width:100%}.iw-map-tools button{flex:1 0 30%}.iw-map-tools button span{font-size:7px}.iw-map-editor-head{flex-direction:column}.iw-coming-soon{padding:25px 16px;min-height:360px}}
+
+
+/* Clickable character objects inside the relationship graph */
+.iw-web-canvas g[role="button"]{outline:none}
+.iw-web-canvas g[role="button"]:focus circle,.iw-web-canvas g[role="button"]:hover circle{stroke:#f3d28b;stroke-width:3.5;filter:drop-shadow(0 0 7px #d6b66a55)}
+.iw-web-canvas g[role="button"] rect{opacity:.95}
+.iw-node-profile{margin-top:12px;padding:12px;background:linear-gradient(145deg,#211f18,#141713);border:1px solid #6c5632;border-radius:5px;box-shadow:0 8px 24px #0003}
+.iw-node-profile-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #393226}
+.iw-node-profile-head h3{margin:3px 0 1px;color:#eadcc0;font:600 19px 'Cormorant Garamond'}
+.iw-node-profile-head small{color:#9b907b;font-size:8px}
+.iw-node-close{margin-left:auto;align-self:flex-start;background:transparent;border:1px solid #51432d;color:#d5bd88;border-radius:3px;width:25px;height:25px;font-size:17px;line-height:1}
+.iw-node-tabs{display:flex;gap:5px;overflow:auto;padding:10px 0;border-bottom:1px solid #393226}
+.iw-node-tabs button{background:#171a16;border:1px solid #3b372b;color:#a99d85;border-radius:3px;padding:6px 10px;font:8px 'DM Mono';white-space:nowrap}
+.iw-node-tabs button.active{background:#3b2f1d;border-color:#b89453;color:#f0d49a}
+.iw-node-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:11px 0}
+.iw-node-fields label{display:grid;gap:5px;color:#aa9b7c;font:8px 'DM Mono';letter-spacing:.45px}
+.iw-node-fields label:has(textarea){grid-column:1/-1}
+.iw-node-fields input,.iw-node-fields textarea{width:100%;min-width:0;box-sizing:border-box;background:#0e120f;border:1px solid #3e392e;border-radius:3px;color:#e6dbc5;padding:8px;font:10px 'DM Sans';outline:none;resize:vertical}
+.iw-node-fields input:focus,.iw-node-fields textarea:focus{border-color:#b99658}
+.iw-node-connection-list{display:flex;flex-direction:column;gap:5px;padding:10px 0}
+.iw-node-connection-list button{display:flex;align-items:center;gap:8px;text-align:left;padding:7px;background:#171a16;border:1px solid #393327;border-radius:3px;color:#e5d7b9}
+.iw-node-connection-list button .iw-character-monogram{width:27px;height:27px;min-width:27px}
+.iw-node-connection-list button span:last-child{display:grid;gap:2px}
+.iw-node-connection-list button b{font:12px 'Cormorant Garamond'}
+.iw-node-connection-list button small,.iw-node-connection-list p{font-size:8px;color:#9c927f}
+.iw-node-tags{display:flex;gap:5px;flex-wrap:wrap;padding-top:9px;border-top:1px solid #393226}
+.iw-node-tags span{font:7px 'DM Mono';color:#d8bf88;background:#302719;border:1px solid #625034;border-radius:12px;padding:5px 8px}
+@media(max-width:700px){.iw-node-fields{grid-template-columns:1fr}.iw-node-fields label:has(textarea){grid-column:auto}}
