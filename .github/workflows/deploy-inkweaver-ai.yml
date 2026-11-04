@@ -1,4 +1,5 @@
 name: Deploy Inkweaver AI
+# Trigger deployment after Supabase credentials are configured.
 on:
   push:
     branches: [main]
