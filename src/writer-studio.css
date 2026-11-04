@@ -74,3 +74,4 @@
 .iw-web-child-list{margin:4px 0 4px 13px;padding:7px 9px;border-left:1px solid #75603d;display:flex;flex-direction:column;gap:5px}
 .iw-web-child-list>b{font:7px 'DM Mono';color:#a89469;letter-spacing:.7px}
 .iw-web-child-list>small{font-size:8px;color:#8f8778}
+.iw-top-project-name{width:150px;max-width:20vw;background:transparent;border:0;border-bottom:1px solid transparent;color:#cbb98f;font:9px 'DM Mono';outline:0;padding:3px}.iw-top-project-name:focus{border-color:#b99658}
