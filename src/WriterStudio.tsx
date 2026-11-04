@@ -66,7 +66,7 @@ export default function WriterStudio(){
  const selected=content.characters.find((c:any)=>c.id===selectedCharacter);
  const patchCharacter=(patch:any)=>updateItem('characters',selected.id,patch);
  const addCharacterHistory=()=>{if(!selected)return;const title=window.prompt('Milestone title');if(!title?.trim())return;const body=window.prompt('What changed for this character?')||'';patchCharacter({history:[...(selected.history||[]),{id:makeId(),title:title.trim(),body,date:new Date().toISOString().slice(0,10)}]});notify('Character milestone added');};
- const addConnection=(targetId:string)=>{if(!selected||!targetId||targetId===selected.id)return;const next=[...new Set([...(selected.connections||[]),targetId])];patchCharacter({connections:next});const target=content.characters.find((c:any)=>c.id===targetId);if(target&&!target.connections?.includes(selected.id))updateItem('characters',target.id,{connections:[...(target.connections||[]),selected.id]});};
+ const addConnection=(targetId:string)=>{if(!selected||!targetId||targetId===selected.id)return;const next=[...new Set([...(selected.connections||[]),targetId])];updateContent('characters',content.characters.map((c:any)=>c.id===selected.id?{...c,connections:next}:c.id===targetId?{...c,connections:[...new Set([...(c.connections||[]),selected.id])]}:c));};
  const createProject=async()=>{
   if(!supabase||!user?.id)return;
   setAuthBusy(true);
