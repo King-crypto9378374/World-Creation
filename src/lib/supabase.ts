@@ -132,7 +132,19 @@ export async function askInkweaver(projectId: string, messages: { role: 'user' |
   const { data, error } = await supabase.functions.invoke('inkweaver-companion', {
     body: { projectId, messages }
   });
-  if (error) throw error;
+  if (error) {
+    let detail = '';
+    try {
+      const response = (error as any).context;
+      if (response && typeof response.clone === 'function') {
+        const payload = await response.clone().json();
+        detail = payload?.error || payload?.message || '';
+      }
+    } catch {
+      // Keep the original invocation error when the response has no JSON body.
+    }
+    throw new Error(detail || error.message || 'The AI service request failed.');
+  }
   if (!data?.answer) throw new Error(data?.error ?? 'The AI companion did not return an answer.');
   return data.answer as string;
 }
