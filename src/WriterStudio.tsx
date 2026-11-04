@@ -53,8 +53,8 @@ export default function WriterStudio(){
  const updateContent=(key:string,value:any)=>setContent((c:any)=>({...c,[key]:value}));
  const updateItem=(key:string,id:string,patch:any)=>updateContent(key,(content[key]||[]).map((x:any)=>x.id===id?{...x,...patch}:x));
  const addRecord=(key:string,title:string,body:string,extra='')=>{
-  const item={id:makeId(),title:title.trim()||'Untitled entry',body,details:extra,status:'Open',createdAt:new Date().toISOString()};
-  updateContent(key,[item,...(content[key]||[])]);
+  const item=key==='chapters'?{id:makeId(),title:title.trim()||'Untitled Chapter',text:body,status:'Idea'}:{id:makeId(),title:title.trim()||'Untitled entry',body,details:extra,status:'Open',createdAt:new Date().toISOString()};
+  updateContent(key,[item,...(content[key]||[])]);if(key==='chapters')setChapterId(item.id);
   setEntryTitle('');setEntryBody('');setEntryExtra('');setNewEntry(false);
   notify('Added to this project');
  };
@@ -73,9 +73,10 @@ export default function WriterStudio(){
   try{const p=await createInkweaverProject(user.id,draftTitle.trim()||'Untitled Project');setProjects(ps=>[p,...ps]);activateProject(p);setShowNewProject(false);setDraftTitle('');notify('New project created');}
   catch(e:any){notify(e.message||'Could not create project');}finally{setAuthBusy(false);}
  };
- const switchProject=(id:string)=>{
+ const switchProject=async(id:string)=>{
   const p=projects.find(x=>x.id===id);if(!p||p.id===activeId)return;
-  activateProject(p);setPage('Dashboard');setSearch('');
+  try{if(activeId)await saveInkweaverProject(activeId,{title:meta.title,subtitle:meta.subtitle,genre:meta.genre,content});activateProject(p);setPage('Dashboard');setSearch('');}
+  catch(e:any){notify(e.message||'Could not save the current project before switching.');}
  };
  const removeProject=async()=>{
   if(!activeId||projects.length<2){notify('Keep at least one project in your workspace.');return;}
@@ -103,9 +104,12 @@ export default function WriterStudio(){
   if(!search.trim())return [];
   const q=search.toLowerCase();const keys=['characters','chapters','timeline','plotThreads','sceneCards','loreNotes','research','inspiration','dialogue','worlds'];
   return projects.flatMap((project:any)=>{
-   const projectHit=[project.title,project.subtitle,project.genre].some((v:any)=>String(v||'').toLowerCase().includes(q));
-   const projectResult=projectHit?[{projectId:project.id,projectTitle:project.title,key:'project',item:{id:project.id,title:project.title,body:project.subtitle||'Open project'},page:'Dashboard'}]:[];
-   const projectContent=normalizeContent(project.content);
+   const projectName=project.id===activeId?meta.title:project.title;
+   const projectSubtitle=project.id===activeId?meta.subtitle:project.subtitle;
+   const projectGenre=project.id===activeId?meta.genre:project.genre;
+   const projectHit=[projectName,projectSubtitle,projectGenre].some((v:any)=>String(v||'').toLowerCase().includes(q));
+   const projectResult=projectHit?[{projectId:project.id,projectTitle:projectName,key:'project',item:{id:project.id,title:projectName,body:projectSubtitle||'Open project'},page:'Dashboard'}]:[];
+   const projectContent=project.id===activeId?content:normalizeContent(project.content);
    const records=keys.flatMap(k=>(projectContent[k]||[]).filter((x:any)=>JSON.stringify(x).toLowerCase().includes(q)).map((x:any)=>({projectId:project.id,projectTitle:projectName,key:k,item:x,page:k==='loreNotes'?'Lore & Notes':k==='plotThreads'?'Plot Threads':k==='sceneCards'?'Scene Cards':k==='worlds'?'Worldbuilding':k[0].toUpperCase()+k.slice(1)})));
    return [...projectResult,...records];
   }).slice(0,50);
