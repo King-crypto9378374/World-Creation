@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { BookOpen, LayoutDashboard, Users, Globe2, CalendarDays, GitBranch, StickyNote, Lightbulb, Library, MessageSquareText, Sparkles, Search, Plus, ChevronDown, ChevronRight, Save, Menu, X, Network, ScrollText, FileText, Trash2, LogOut, FolderPlus, History } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Users, Globe2, CalendarDays, GitBranch, StickyNote, Lightbulb, Library, MessageSquareText, Sparkles, Search, Plus, ChevronRight, Save, Menu, X, Network, ScrollText, FileText, Trash2, LogOut, FolderPlus, History } from 'lucide-react';
 import WorldBuilder from './WorldBuilder';
 import { supabase, isSupabaseConfigured, listInkweaverProjects, createInkweaverProject, saveInkweaverProject, deleteInkweaverProject, emptyInkweaverContent } from './lib/supabase';
 
@@ -9,7 +9,6 @@ const sectionTitles:Record<string,string>={timeline:'Timeline events',plotThread
 const makeId=()=>Math.random().toString(36).slice(2,10);
 const emptyContent=()=>emptyInkweaverContent();
 const normalizeContent=(value:any)=>({...emptyContent(),...(value||{})});
-const initialMessage={role:'assistant',content:'Welcome to Inkweaver. I can help develop your story, track continuity, explore character motivations, and build your world. I’ll use the active project as context.'};
 
 function CharacterRelationshipWeb({characters,selected,onSelect,onConnect}:{characters:any[];selected:any;onSelect:(id:string)=>void;onConnect:(id:string)=>void}){
  const others=characters.filter(c=>c.id!==selected.id);
