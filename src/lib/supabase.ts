@@ -76,3 +76,63 @@ export async function loadWorldCounts(worldId: string) {
   if (settlements.error) throw settlements.error;
   return { population: citizens.count ?? 0, settlements: settlements.count ?? 0 };
 }
+
+export type InkweaverProject = {
+  id: string;
+  owner_id: string;
+  title: string;
+  subtitle: string;
+  genre: string;
+  content: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function listInkweaverProjects() {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const { data, error } = await supabase.from('inkweaver_projects')
+    .select('*').order('updated_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as InkweaverProject[];
+}
+
+export async function createInkweaverProject(ownerId: string, title = 'Untitled Project') {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const { data, error } = await supabase.from('inkweaver_projects')
+    .insert({ owner_id: ownerId, title, content: emptyInkweaverContent() })
+    .select('*').single();
+  if (error) throw error;
+  return data as InkweaverProject;
+}
+
+export async function saveInkweaverProject(id: string, patch: Partial<InkweaverProject>) {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const { data, error } = await supabase.from('inkweaver_projects')
+    .update({ ...patch, updated_at: new Date().toISOString() })
+    .eq('id', id).select('*').single();
+  if (error) throw error;
+  return data as InkweaverProject;
+}
+
+export async function deleteInkweaverProject(id: string) {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const { error } = await supabase.from('inkweaver_projects').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export function emptyInkweaverContent() {
+  return {
+    characters: [], chapters: [], timeline: [], plotThreads: [], sceneCards: [],
+    loreNotes: [], research: [], inspiration: [], dialogue: [], worlds: [], aiMessages: []
+  };
+}
+
+export async function askInkweaver(projectId: string, messages: { role: 'user' | 'assistant'; content: string }[]) {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const { data, error } = await supabase.functions.invoke('inkweaver-companion', {
+    body: { projectId, messages }
+  });
+  if (error) throw error;
+  if (!data?.answer) throw new Error(data?.error ?? 'The AI companion did not return an answer.');
+  return data.answer as string;
+}
