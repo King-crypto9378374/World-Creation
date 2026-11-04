@@ -106,10 +106,10 @@ export default function WriterStudio(){
    const projectHit=[project.title,project.subtitle,project.genre].some((v:any)=>String(v||'').toLowerCase().includes(q));
    const projectResult=projectHit?[{projectId:project.id,projectTitle:project.title,key:'project',item:{id:project.id,title:project.title,body:project.subtitle||'Open project'},page:'Dashboard'}]:[];
    const projectContent=normalizeContent(project.content);
-   const records=keys.flatMap(k=>(projectContent[k]||[]).filter((x:any)=>JSON.stringify(x).toLowerCase().includes(q)).map((x:any)=>({projectId:project.id,projectTitle:project.title,key:k,item:x,page:k==='loreNotes'?'Lore & Notes':k==='plotThreads'?'Plot Threads':k==='sceneCards'?'Scene Cards':k==='worlds'?'Worldbuilding':k[0].toUpperCase()+k.slice(1)})));
+   const records=keys.flatMap(k=>(projectContent[k]||[]).filter((x:any)=>JSON.stringify(x).toLowerCase().includes(q)).map((x:any)=>({projectId:project.id,projectTitle:projectName,key:k,item:x,page:k==='loreNotes'?'Lore & Notes':k==='plotThreads'?'Plot Threads':k==='sceneCards'?'Scene Cards':k==='worlds'?'Worldbuilding':k[0].toUpperCase()+k.slice(1)})));
    return [...projectResult,...records];
   }).slice(0,50);
- },[search,projects]);
+ },[search,projects,activeId,content,meta]);
  const words=useMemo(()=>content.chapters.reduce((n:number,c:any)=>n+(c.text?.trim()?c.text.trim().split(/\s+/).length:0),0),[content.chapters]);
  const [chapterId,setChapterId]=useState('');
  const chapter=content.chapters.find((c:any)=>c.id===chapterId);
